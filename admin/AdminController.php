@@ -2,6 +2,7 @@
 require_once '../model/Database.php';
 require_once '../model/ProductTable.php';
 require_once '../model/CustomerTable.php';
+require_once '../model/CountryTable.php';
 require_once '../util/Util.php';
 
 class AdminController
@@ -120,6 +121,9 @@ class AdminController
         $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
         $customer_table = new CustomerTable($this->db);
         $customer = $customer_table->get_customer($customer_id);
+
+        $country_table = new CountryTable($this->db);
+        $countries = $country_table->getCountryCodeAndNameAssociativeArray();
 
         include '../view/admin/customer_display.php';
     }
