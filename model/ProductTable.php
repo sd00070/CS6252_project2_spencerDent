@@ -10,7 +10,7 @@ class ProductTable
         $this->db = $db;
     }
 
-    function get_products()
+    function getProducts()
     {
         $query = 'SELECT * FROM products
               ORDER BY name';
@@ -21,7 +21,7 @@ class ProductTable
         return $products;
     }
 
-    function delete_product($product_code)
+    function deleteProduct($product_code)
     {
         $query = 'DELETE FROM products
               WHERE productCode = :product_code';
@@ -31,7 +31,7 @@ class ProductTable
         $statement->closeCursor();
     }
 
-    function add_product($code, $name, $version, $release_date)
+    function addProduct($code, $name, $version, $release_date)
     {
         $query = 'INSERT INTO products
                  (productCode, name, version, releaseDate)

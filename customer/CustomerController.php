@@ -49,13 +49,13 @@ class CustomerController
     {
         $email = filter_input(INPUT_POST, 'email');
         $customer_table = new CustomerTable($this->db);
-        $customer = $customer_table->get_customer_by_email($email);
+        $customer = $customer_table->getCustomerByEmail($email);
         if ($customer == false) {
             $error = "Invalid email address";
             include('../view/errors/error.php');
         } else {
             $product_table = new ProductTable($this->db);
-            $products = $product_table->get_products();
+            $products = $product_table->getProducts();
             include '../view/customer/product_register.php';
         }
     }
@@ -65,7 +65,7 @@ class CustomerController
         $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
         $product_code = filter_input(INPUT_POST, 'product_code');
         $registration_table = new RegistrationTable($this->db);
-        $registration_table->add_registration($customer_id, $product_code);
+        $registration_table->addRegistration($customer_id, $product_code);
         $message = "Product ($product_code) was registered successfully.";
         include '../view/customer/product_register.php';
     }

@@ -10,7 +10,7 @@ class RegistrationTable
         $this->db = $db;
     }
 
-    function add_registration($customer_id, $product_code)
+    function addRegistration($customer_id, $product_code)
     {
         $date = date('Y-m-d');  // get current date in yyyy-mm-dd format
         $query = 'INSERT INTO registrations VALUES

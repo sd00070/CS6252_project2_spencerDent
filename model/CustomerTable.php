@@ -10,7 +10,7 @@ class CustomerTable
         $this->db = $db;
     }
 
-    function get_customer($customer_id)
+    function getCustomer($customer_id)
     {
         $query = 'SELECT * FROM customers
               WHERE customerID = :customer_id';
@@ -22,7 +22,7 @@ class CustomerTable
         return $customer;
     }
 
-    function get_customer_by_email($email)
+    function getCustomerByEmail($email)
     {
         $query = 'SELECT * FROM customers
               WHERE email = :email';
@@ -34,7 +34,7 @@ class CustomerTable
         return $customer;
     }
 
-    function get_customers_by_last_name($last_name)
+    function getCustomersByLastName($last_name)
     {
         $query = 'SELECT * FROM customers
               WHERE lastName = :last_name
@@ -47,7 +47,7 @@ class CustomerTable
         return $customers;
     }
 
-    function update_customer(
+    function updateCustomer(
         $customer_id,
         $first_name,
         $last_name,
