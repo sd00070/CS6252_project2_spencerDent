@@ -25,38 +25,18 @@ class AdminController
         // get the action to be processed
         $this->action = Util::getAction($this->action);
 
-        switch ($this->action) {
-            case 'under_construction':
-                include '../view/under_construction.php';
-                break;
-            case 'list_products':
-                $this->processListProducts();
-                break;
-            case 'delete_product':
-                $this->processDeleteProduct();
-                break;
-            case 'show_add_form':
-                $this->processShowAddForm();
-                break;
-            case 'add_product':
-                $this->processAddProduct();
-                break;
-            case 'customer_search':
-                $this->processCustomerSearch();
-                break;
-            case 'display_customer':
-                $this->processDisplayCustomer();
-                break;
-            case 'update_customer':
-                $this->processUpdateCustomer();
-                break;
-            case 'display_customers':
-                $this->processDisplayCustomers();
-                break;
-            default:
-                $this->processAdminMenu();
-                break;
-        }
+        match ($this->action) {
+            'under_construction' => $this->processUnderConstruction(),
+            'list_products' => $this->processListProducts(),
+            'delete_product' => $this->processDeleteProduct(),
+            'show_add_form' => $this->processShowAddForm(),
+            'add_product' => $this->processAddProduct(),
+            'customer_search' => $this->processCustomerSearch(),
+            'display_customer' => $this->processDisplayCustomer(),
+            'update_customer' => $this->processUpdateCustomer(),
+            'display_customers' => $this->processDisplayCustomers(),
+            default => $this->processAdminMenu()
+        };
     }
 
     /****************************************************************
@@ -65,6 +45,11 @@ class AdminController
     private function processAdminMenu()
     {
         include '../view/admin/admin_menu.php';
+    }
+
+    private function processUnderConstruction()
+    {
+        include '../view/under_construction.php';
     }
 
     private function processListProducts()
