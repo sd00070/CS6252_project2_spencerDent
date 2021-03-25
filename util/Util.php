@@ -12,19 +12,16 @@ class Util
     /****************************************************************
      * Gets the action
      ***************************************************************/
-    public static function getAction($old_action)
+    public static function getAction($old_action = '')
     {
-        if ($old_action === '') {
-            $new_action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-            if ($new_action === NULL) {
-                $new_action = filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-                if ($new_action === NULL) {
-                    $new_action = '';
-                }
-            }
-            return $new_action;
-        } else {
+        if ($old_action !== '') {
             return $old_action;
         }
+
+        $new_action =
+            filter_input(INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+            ?? filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS)
+            ?? '';
+        return $new_action;
     }
 }
