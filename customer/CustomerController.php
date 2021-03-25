@@ -69,6 +69,18 @@ class CustomerController
         $message = "Product ($product_code) was registered successfully.";
         include '../view/customer/product_register.php';
     }
+
+    private function startSession()
+    {
+        session_start();
+    }
+
+    private function clearSession()
+    {
+        $_SESSION = [];
+        session_destroy();
+    }
+
     private function connectToDatabase()
     {
         $this->db = new Database();
