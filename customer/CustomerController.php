@@ -12,12 +12,7 @@ class CustomerController
     public function __construct()
     {
         $this->action = '';
-        $this->db = new Database();
-        if (!$this->db->isConnected()) {
-            $error_message = $this->db->getErrorMessage();
-            include '../view/errors/database_error.php';
-            exit();
-        }
+        $this->connectToDatabase();
     }
 
     public function invoke()
@@ -73,5 +68,14 @@ class CustomerController
         $registration_table->add_registration($customer_id, $product_code);
         $message = "Product ($product_code) was registered successfully.";
         include '../view/customer/product_register.php';
+    }
+    private function connectToDatabase()
+    {
+        $this->db = new Database();
+        if (!$this->db->isConnected()) {
+            $error_message = $this->db->getErrorMessage();
+            include '../view/errors/database_error.php';
+            exit();
+        }
     }
 }
