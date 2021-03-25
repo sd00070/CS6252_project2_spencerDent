@@ -70,7 +70,7 @@ class AdminController
     private function processListProducts()
     {
         $product_table = new ProductTable($this->db);
-        $products = $product_table->get_products();
+        $products = $product_table->getProducts();
         include '../view/admin/list_products.php';
     }
 
@@ -78,7 +78,7 @@ class AdminController
     {
         $product_code = filter_input(INPUT_POST, 'product_code');
         $product_table = new ProductTable($this->db);
-        $product_table->delete_product($product_code);
+        $product_table->deleteProduct($product_code);
         header("Location: .?action=list_products");
     }
 
@@ -104,7 +104,7 @@ class AdminController
             include('../view/errors/error.php');
         } else {
             $product_table = new ProductTable($this->db);
-            $product_table->add_product($code, $name, $version, $release_date);
+            $product_table->addProduct($code, $name, $version, $release_date);
             header("Location: .?action=list_products");
         }
     }
@@ -120,7 +120,7 @@ class AdminController
     {
         $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
         $customer_table = new CustomerTable($this->db);
-        $customer = $customer_table->get_customer($customer_id);
+        $customer = $customer_table->getCustomer($customer_id);
 
         $country_table = new CountryTable($this->db);
         $countries = $country_table->getCountryCodeAndNameAssociativeArray();
@@ -147,7 +147,7 @@ class AdminController
             include('../view/errors/error.php');
         } else {
             $customer_table = new CustomerTable($this->db);
-            $customer_table->update_customer(
+            $customer_table->updateCustomer(
                 $customer_id,
                 $first_name,
                 $last_name,
@@ -161,7 +161,7 @@ class AdminController
                 $password
             );
             $customer_table = new CustomerTable($this->db);
-            $customers = $customer_table->get_customers_by_last_name($last_name);
+            $customers = $customer_table->getCustomersByLastName($last_name);
             include '../view/admin/customer_search.php';
         }
     }
@@ -173,7 +173,7 @@ class AdminController
             $message = 'Please enter a last name.';
         } else {
             $customer_table = new CustomerTable($this->db);
-            $customers = $customer_table->get_customers_by_last_name($last_name);
+            $customers = $customer_table->getCustomersByLastName($last_name);
             if (count($customers) == 0) {
                 $message = 'No customer found';
             }
