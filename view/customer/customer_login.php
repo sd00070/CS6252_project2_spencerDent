@@ -6,9 +6,15 @@
     <!-- display a search form -->
     <form action="." method="post" id="aligned">
         <input type="hidden" name="action" value="get_customer">
+
         <label>Email:</label>
-        <input type="text" name="email" value="<?= htmlspecialchars($email); ?>">
+        <input type="text" name="email">
         <br>
+
+        <label>Password:</label>
+        <input type="password" name="password">
+        <br>
+
         <label>&nbsp;</label>
         <input type="submit" value="Login">
     </form>

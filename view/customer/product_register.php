@@ -10,8 +10,7 @@
             <input type="hidden" name="customer_id" value="<?= htmlspecialchars($customer['customerID']); ?>">
 
             <label>Customer:</label>
-            <label><?= htmlspecialchars($customer['firstName'] . ' ' .
-                        $customer['lastName']) ?></label>
+            <label><?= htmlspecialchars($customer['firstName'] . ' ' . $customer['lastName']) ?></label>
             <br>
 
             <label>Product:</label>
@@ -26,6 +25,12 @@
 
             <label>&nbsp;</label>
             <input type="submit" value="Register Product" />
+        </form>
+
+        <p>You are logged in as <?= htmlspecialchars($customer['email']) ?></p>
+        <form action="." method="POST">
+            <input type="hidden" name="action" value="logout">
+            <input type="submit" value="Logout">
         </form>
     <?php endif; ?>
 
