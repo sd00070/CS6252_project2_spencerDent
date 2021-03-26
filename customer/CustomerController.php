@@ -8,11 +8,12 @@ require_once '../util/Util.php';
 class CustomerController
 {
     private $action;
+    private $db;
 
     public function __construct()
     {
-        $this->action = '';
-        $this->connectToDatabase();
+        $this->action = Util::getAction();
+        $this->db = Database::connectToDatabase();
     }
 
     public function invoke()
@@ -79,15 +80,5 @@ class CustomerController
     {
         $_SESSION = [];
         session_destroy();
-    }
-
-    private function connectToDatabase()
-    {
-        $this->db = new Database();
-        if (!$this->db->isConnected()) {
-            $error_message = $this->db->getErrorMessage();
-            include '../view/errors/database_error.php';
-            exit();
-        }
     }
 }
