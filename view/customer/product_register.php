@@ -7,8 +7,7 @@
     <?php else : ?>
         <form action="." method="post" id="aligned">
             <input type="hidden" name="action" value="register_product">
-            <input type="hidden" name="customer_id" value="<?= htmlspecialchars($customer['customerID']); ?>">
-
+            
             <label>Customer:</label>
             <label><?= htmlspecialchars($customer['firstName'] . ' ' . $customer['lastName']) ?></label>
             <br>
@@ -29,7 +28,7 @@
 
         <p>You are logged in as <?= htmlspecialchars($customer['email']) ?></p>
         <form action="." method="POST">
-            <input type="hidden" name="action" value="logout">
+            <input type="hidden" name="action" value="customer_logout">
             <input type="submit" value="Logout">
         </form>
     <?php endif; ?>

@@ -36,7 +36,16 @@ class CustomerController
      ***************************************************************/
     private function processCustomerLogin()
     {
-        $email = '';
+        if (isset($_SESSION['customer'])) {
+            $customer = $_SESSION['customer'];
+
+            $product_table = new ProductTable($this->db);
+            $products = $product_table->getProducts();
+            include '../view/customer/product_register.php';
+
+            return;
+        }
+
         include '../view/customer/customer_login.php';
     }
 
@@ -52,6 +61,8 @@ class CustomerController
             $message = 'Invalid email address or password';
             include '../view/customer/customer_login.php';
         } else {
+            $_SESSION['customer'] = $customer_table->getCustomerByEmail($email);
+
             $product_table = new ProductTable($this->db);
             $products = $product_table->getProducts();
             include '../view/customer/product_register.php';
@@ -60,29 +71,30 @@ class CustomerController
 
     private function processRegisterProduct()
     {
-        $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
+        $customer_id = $_SESSION['customer']['customerID'];
         $product_code = filter_input(INPUT_POST, 'product_code');
+
         $registration_table = new RegistrationTable($this->db);
         $registration_table->addRegistration($customer_id, $product_code);
+
         $message = "Product ($product_code) was registered successfully.";
         include '../view/customer/product_register.php';
     }
 
     private function processCustomerLogout()
     {
-        $this->clearSession();
+        unset($_SESSION['customer']);
         $message = 'You have successfully logged out.';
         include '../view/customer/customer_login.php';
     }
 
     private function startSession()
     {
-        session_start();
-    }
+        session_set_cookie_params(
+            0,                      // lifetime - ends when the user closes the browser
+            Util::getProjectPath()  // path
+        );
 
-    private function clearSession()
-    {
-        $_SESSION = [];
-        session_destroy();
+        session_start();
     }
 }
