@@ -21,20 +21,12 @@ class CustomerController
         // get the action to be processed
         $this->action = Util::getAction($this->action);
 
-        switch ($this->action) {
-            case 'customer_login':
-                $this->processCustomerLogin();
-                break;
-            case 'get_customer':
-                $this->processGetCustomer();
-                break;
-            case 'register_product':
-                $this->processRegisterProduct();
-                break;
-            default:
-                $this->processCustomerLogin();
-                break;
-        }
+        match ($this->action) {
+            'customer_login' => $this->processCustomerLogin(),
+            'get_customer' => $this->processGetCustomer(),
+            'register_product' => $this->processRegisterProduct(),
+            default => $this->processCustomerLogin()
+        };
     }
 
     /****************************************************************
