@@ -48,12 +48,15 @@ class CustomerController
 
     private function processGetCustomer()
     {
-        $email = filter_input(INPUT_POST, 'email');
+        $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
+        $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
+
         $customer_table = new CustomerTable($this->db);
-        $customer = $customer_table->getCustomerByEmail($email);
+        $customer = $customer_table->verifyCustomer($email, $password);
+        
         if ($customer == false) {
-            $error = "Invalid email address";
-            include('../view/errors/error.php');
+            $message = 'Invalid email address or password';
+            include '../view/customer/customer_login.php';
         } else {
             $product_table = new ProductTable($this->db);
             $products = $product_table->getProducts();

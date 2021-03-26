@@ -87,4 +87,18 @@ class CustomerTable
         $statement->execute();
         $statement->closeCursor();
     }
+
+    public function verifyCustomer($email, $password)
+    {
+        $query = 'SELECT * FROM customers
+                  WHERE email = :email
+                  AND password = :password';
+        $statement = $this->db->getDB()->prepare($query);
+        $statement->bindValue(':email', $email);
+        $statement->bindValue(':password', $password);
+        $statement->execute();
+        $customer = $statement->fetch();
+        $statement->closeCursor();
+        return $customer;
+    }
 }
