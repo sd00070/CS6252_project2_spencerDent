@@ -12,8 +12,9 @@ class CustomerController
 
     public function __construct()
     {
-        $this->action = Util::getAction();
+        $this->startSession();
         $this->db = Database::connectToDatabase();
+        $this->action = Util::getAction();
     }
 
     public function invoke()
