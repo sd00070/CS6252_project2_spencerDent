@@ -40,4 +40,15 @@ class Database
     {
         return $this->db;
     }
+
+    public static function connectToDatabase()
+    {
+        $db = new Database();
+        if (!$db->isConnected()) {
+            $error_message = $db->getErrorMessage();
+            include '../view/errors/database_error.php';
+            exit();
+        }
+        return $db;
+    }
 }
