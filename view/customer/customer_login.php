@@ -2,8 +2,13 @@
 <main>
 
     <h2>Customer Login</h2>
+
+    <?php if (isset($message)) : ?>
+        <p class="error"><?= $message ?></p>
+    <?php endif; ?>
+
     <p>You must login before you can register a product.</p>
-    <!-- display a search form -->
+
     <form action="." method="post" id="aligned">
         <input type="hidden" name="action" value="get_customer">
 
