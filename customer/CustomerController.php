@@ -26,6 +26,7 @@ class CustomerController
             'customer_login' => $this->processCustomerLogin(),
             'get_customer' => $this->processGetCustomer(),
             'register_product' => $this->processRegisterProduct(),
+            'customer_logout' => $this->processCustomerLogout(),
             default => $this->processCustomerLogin()
         };
     }
@@ -46,7 +47,7 @@ class CustomerController
 
         $customer_table = new CustomerTable($this->db);
         $customer = $customer_table->verifyCustomer($email, $password);
-        
+
         if ($customer == false) {
             $message = 'Invalid email address or password';
             include '../view/customer/customer_login.php';
@@ -65,6 +66,13 @@ class CustomerController
         $registration_table->addRegistration($customer_id, $product_code);
         $message = "Product ($product_code) was registered successfully.";
         include '../view/customer/product_register.php';
+    }
+
+    private function processCustomerLogout()
+    {
+        $this->clearSession();
+        $message = 'You have successfully logged out.';
+        include '../view/customer/customer_login.php';
     }
 
     private function startSession()
