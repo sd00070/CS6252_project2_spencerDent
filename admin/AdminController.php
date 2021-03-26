@@ -165,4 +165,15 @@ class AdminController
         }
         include '../view/admin/customer_search.php';
     }
+
+    private function startSession()
+    {
+        session_start();
+    }
+
+    private function clearSession()
+    {
+        $_SESSION = [];
+        session_destroy();
+    }
 }
