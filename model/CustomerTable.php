@@ -10,7 +10,7 @@ class CustomerTable
         $this->db = $db;
     }
 
-    function getCustomer($customer_id)
+    public function getCustomer($customer_id)
     {
         $query = 'SELECT * FROM customers
               WHERE customerID = :customer_id';
@@ -22,7 +22,19 @@ class CustomerTable
         return $customer;
     }
 
-    function getCustomerByEmail($email)
+    public function getPassword($customer_id)
+    {
+        $query = 'SELECT password FROM customers
+                  WHERE customerID = :customer_id';
+        $statement = $this->db->getDB()->prepare($query);
+        $statement->bindValue(':customer_id', $customer_id);
+        $statement->execute();
+        $password = $statement->fetch();
+        $statement->closeCursor();
+        return $password['password'];
+    }
+
+    public function getCustomerByEmail($email)
     {
         $query = 'SELECT * FROM customers
               WHERE email = :email';
@@ -34,7 +46,7 @@ class CustomerTable
         return $customer;
     }
 
-    function getCustomersByLastName($last_name)
+    public function getCustomersByLastName($last_name)
     {
         $query = 'SELECT * FROM customers
               WHERE lastName = :last_name
@@ -47,7 +59,7 @@ class CustomerTable
         return $customers;
     }
 
-    function updateCustomer(
+    public function updateCustomer(
         $customer_id,
         $first_name,
         $last_name,
@@ -88,17 +100,19 @@ class CustomerTable
         $statement->closeCursor();
     }
 
-    public function verifyCustomer($email, $password)
+    public function isValidUserLogin($email, $password)
     {
-        $query = 'SELECT * FROM customers
-                  WHERE email = :email
-                  AND password = :password';
+        $query = 'SELECT password FROM customers
+                  WHERE email = :email';
         $statement = $this->db->getDB()->prepare($query);
         $statement->bindValue(':email', $email);
-        $statement->bindValue(':password', $password);
         $statement->execute();
-        $customer = $statement->fetch();
+        $row = $statement->fetch();
         $statement->closeCursor();
-        return $customer;
+        if (!$row) {
+            return false;
+        }
+        $hash = $row['password'];
+        return password_verify($password, $hash);
     }
 }

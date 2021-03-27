@@ -212,6 +212,8 @@ class AdminController
         $customer_table = new CustomerTable($this->db);
         $customer = $customer_table->getCustomer($customer_id);
 
+        $customer['password'] = '******';
+
         $country_table = new CountryTable($this->db);
         $countries = $country_table->getCountryCodeAndNameAssociativeArray();
 
@@ -259,7 +261,13 @@ class AdminController
         $this->validator->checkEmail('email', $email);
 
         $password = filter_input(INPUT_POST, 'password');
-        $this->validator->checkText('password', $password, true, 6, 20);
+        if ($password == '******') {
+            $customer_table = new CustomerTable($this->db);
+            $password = $customer_table->getPassword($customer_id);
+        } else {
+            $this->validator->checkText('password', $password, true, 6, 20);
+            $password = password_hash($password, PASSWORD_BCRYPT);
+        }
 
         $fields = $this->validator->getFields();
 

@@ -55,18 +55,19 @@ class CustomerController
         $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
 
         $customer_table = new CustomerTable($this->db);
-        $customer = $customer_table->verifyCustomer($email, $password);
-
-        if ($customer == false) {
-            $message = 'Invalid email or password.';
-            include '../view/customer/customer_login.php';
-        } else {
+        if ($customer_table->isValidUserLogin($email, $password)) {
             $_SESSION['customer'] = $customer_table->getCustomerByEmail($email);
+            
+            $customer = $_SESSION['customer'];
 
             $product_table = new ProductTable($this->db);
             $products = $product_table->getProducts();
             include '../view/customer/product_register.php';
+            return;
         }
+
+        $message = 'Invalid email or password.';
+        include '../view/customer/customer_login.php';
     }
 
     private function processRegisterProduct()
