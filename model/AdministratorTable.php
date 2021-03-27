@@ -10,17 +10,19 @@ class AdministratorTable
         $this->db = $db;
     }
 
-    public function verifyAdmin($username, $password)
+    public function isValidUserLogin($username, $password)
     {
-        $query = 'SELECT * FROM administrators
-                  WHERE username = :username
-                  AND password = :password';
+        $query = 'SELECT password FROM administrators
+                  WHERE username = :username';
         $statement = $this->db->getDB()->prepare($query);
         $statement->bindValue(':username', $username);
-        $statement->bindValue(':password', $password);
         $statement->execute();
-        $customer = $statement->fetch();
+        $row = $statement->fetch();
         $statement->closeCursor();
-        return $customer;
+        if (!$row) {
+            return false;
+        }
+        $hash = $row['password'];
+        return password_verify($password, $hash);
     }
 }

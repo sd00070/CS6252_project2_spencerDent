@@ -83,19 +83,18 @@ class AdminController
         $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
 
         $admin_table = new AdministratorTable($this->db);
-        $admin = $admin_table->verifyAdmin($username, $password);
 
-        if ($admin == false) {
-            $message = 'Invalid email or password.';
-            include '../view/admin/admin_login.php';
-        } else {
+        if ($admin_table->isValidUserLogin($username, $password)) {
             $_SESSION['admin_isValid'] = true;
             $_SESSION['admin_username'] = $username;
 
             $admin_username = $username;
-
             include '../view/admin/admin_menu.php';
+            return;
         }
+
+            $message = 'Invalid email or password.';
+            include '../view/admin/admin_login.php';
     }
 
     private function logoutAdmin()
