@@ -199,7 +199,7 @@ class AdminController
                 $email,
                 $password
             );
-            $customer_table = new CustomerTable($this->db);
+            
             $customers = $customer_table->getCustomersByLastName($last_name);
             include '../view/admin/customer_search.php';
         }
