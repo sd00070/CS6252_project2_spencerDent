@@ -1,5 +1,6 @@
 <?php
 require_once '../model/Database.php';
+require_once '../model/AdministratorTable.php';
 require_once '../model/ProductTable.php';
 require_once '../model/CustomerTable.php';
 require_once '../model/CountryTable.php';
@@ -14,6 +15,7 @@ class AdminController
 
     public function __construct()
     {
+        $this->startSession();
         $this->db = Database::connectToDatabase();
         $this->action = Util::getAction();
 
@@ -39,39 +41,89 @@ class AdminController
         $this->action = Util::getAction($this->action);
 
         match ($this->action) {
-            'under_construction' => $this->processUnderConstruction(),
-            'list_products' => $this->processListProducts(),
+            'show_admin_login' => $this->showAdminLogin(),
+            'login_admin' => $this->loginAdmin(),
+            'logout_admin' => $this->logoutAdmin(),
+            'under_construction' => $this->showUnderConstruction(),
+            'list_products' => $this->displayProductList(),
             'delete_product' => $this->processDeleteProduct(),
-            'show_add_form' => $this->processShowAddForm(),
+            'show_add_form' => $this->showAddProductForm(),
             'add_product' => $this->processAddProduct(),
-            'customer_search' => $this->processCustomerSearch(),
-            'display_customer' => $this->processDisplayCustomer(),
+            'customer_search' => $this->showCustomerSearch(),
+            'display_customer' => $this->displayCustomer(),
             'update_customer' => $this->processUpdateCustomer(),
-            'display_customers' => $this->processDisplayCustomers(),
-            default => $this->processAdminMenu()
+            'display_customers' => $this->displayCustomerSearchResults(),
+            default => $this->showAdminLogin()
         };
     }
 
     /****************************************************************
      * Process Request
      ***************************************************************/
-    private function processAdminMenu()
+    private function showAdminLogin()
     {
-        include '../view/admin/admin_menu.php';
+        if (isset($_SESSION['admin'])) {
+            $this->showAdminMenu();
+            return;
+        }
+
+        include '../view/admin/admin_login.php';
     }
 
-    private function processUnderConstruction()
+    private function loginAdmin()
+    {
+        $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_SPECIAL_CHARS);
+        $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
+
+        $admin_table = new AdministratorTable($this->db);
+        $admin = $admin_table->verifyAdmin($username, $password);
+
+        if ($admin == false) {
+            $message = 'Invalid email or password.';
+            include '../view/admin/admin_login.php';
+        } else {
+            $_SESSION['admin'] = $admin;
+
+            include '../view/admin/admin_menu.php';
+        }
+    }
+
+    private function logoutAdmin()
+    {
+        unset($_SESSION['admin']);
+        $message = 'You have successfully logged out.';
+        include '../view/admin/admin_login.php';
+    }
+
+    private function showAdminMenu()
+    {
+        if (!isset($_SESSION['admin'])) {
+            include '../view/admin/admin_login.php';
+            return;
+        }
+        $admin = $_SESSION['admin'];
+
+        include '../view/admin/admin_menu.php';
+    }
+    
+    private function showUnderConstruction()
     {
         include '../view/under_construction.php';
     }
-
-    private function processListProducts()
+    
+    private function displayProductList()
     {
+        if (!isset($_SESSION['admin'])) {
+            include '../view/admin/admin_login.php';
+            return;
+        }
+        $admin = $_SESSION['admin'];
+        
         $product_table = new ProductTable($this->db);
         $products = $product_table->getProducts();
         include '../view/admin/list_products.php';
     }
-
+    
     private function processDeleteProduct()
     {
         $product_code = filter_input(INPUT_POST, 'product_code');
@@ -79,43 +131,67 @@ class AdminController
         $product_table->deleteProduct($product_code);
         header("Location: .?action=list_products");
     }
-
-    private function processShowAddForm()
+    
+    private function showAddProductForm()
     {
+        if (!isset($_SESSION['admin'])) {
+            include '../view/admin/admin_login.php';
+            return;
+        }
+        $admin = $_SESSION['admin'];
+
         include '../view/admin/product_add.php';
     }
 
     private function processAddProduct()
     {
+        if (!isset($_SESSION['admin'])) {
+            include '../view/admin/admin_login.php';
+            return;
+        }
+        $admin = $_SESSION['admin'];
+
         $code = filter_input(INPUT_POST, 'code');
         $name = filter_input(INPUT_POST, 'name');
         $version = filter_input(INPUT_POST, 'version', FILTER_VALIDATE_FLOAT);
         $release_date = filter_input(INPUT_POST, 'release_date');
-
+        
         // Validate the inputs
         if (
             $code === NULL || $name === FALSE ||
             $version === NULL || $version === FALSE ||
             $release_date === NULL
-        ) {
-            $error = "Invalid product data. Check all fields and try again.";
-            include('../view/errors/error.php');
-        } else {
-            $product_table = new ProductTable($this->db);
-            $product_table->addProduct($code, $name, $version, $release_date);
+            ) {
+                $error = "Invalid product data. Check all fields and try again.";
+                include('../view/errors/error.php');
+            } else {
+                $product_table = new ProductTable($this->db);
+                $product_table->addProduct($code, $name, $version, $release_date);
             header("Location: .?action=list_products");
         }
     }
-
-    private function processCustomerSearch()
+    
+    private function showCustomerSearch()
     {
+        if (!isset($_SESSION['admin'])) {
+            include '../view/admin/admin_login.php';
+            return;
+        }
+        $admin = $_SESSION['admin'];
+        
         $last_name = '';
         $customers = [];
         include '../view/admin/customer_search.php';
     }
-
-    private function processDisplayCustomer()
+    
+    private function displayCustomer()
     {
+        if (!isset($_SESSION['admin'])) {
+            include '../view/admin/admin_login.php';
+            return;
+        }
+        $admin = $_SESSION['admin'];
+
         $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
         $customer_table = new CustomerTable($this->db);
         $customer = $customer_table->getCustomer($customer_id);
@@ -130,6 +206,12 @@ class AdminController
 
     private function processUpdateCustomer()
     {
+        if (!isset($_SESSION['admin'])) {
+            include '../view/admin/admin_login.php';
+            return;
+        }
+        $admin = $_SESSION['admin'];
+
         $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
 
         $first_name = filter_input(INPUT_POST, 'first_name');
@@ -205,8 +287,14 @@ class AdminController
         }
     }
 
-    private function processDisplayCustomers()
+    private function displayCustomerSearchResults()
     {
+        if (!isset($_SESSION['admin'])) {
+            include '../view/admin/admin_login.php';
+            return;
+        }
+        $admin = $_SESSION['admin'];
+
         $last_name = filter_input(INPUT_POST, 'last_name');
         if (empty($last_name)) {
             $message = 'Please enter a last name.';
@@ -222,12 +310,11 @@ class AdminController
 
     private function startSession()
     {
-        session_start();
-    }
+        session_set_cookie_params(
+            0,                      // lifetime - ends when the user closes the browser
+            Util::getProjectPath()  // path
+        );
 
-    private function clearSession()
-    {
-        $_SESSION = [];
-        session_destroy();
+        session_start();
     }
 }

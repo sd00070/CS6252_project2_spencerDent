@@ -12,7 +12,7 @@
     </form>
 
     <?php if (isset($message)) : ?>
-        <p><?= $message; ?></p>
+        <p class="error"><?= $message; ?></p>
     <?php elseif ($customers) : ?>
         <h2>Results</h2>
         <table>
@@ -41,6 +41,8 @@
             <?php endforeach; ?>
         </table>
     <?php endif; ?>
+
+    <?php include 'admin_login_status.php'; ?>
 
 </main>
 <?php include '../view/shared/footer.php'; ?>

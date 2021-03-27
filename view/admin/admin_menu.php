@@ -11,5 +11,8 @@
             <li><a href="?action=under_construction">Display Incidents</a></li>
         </ul>
     </nav>
+
+    <?php include 'admin_login_status.php'; ?>
+
 </main>
 <?php include '../view/shared/footer.php'; ?>

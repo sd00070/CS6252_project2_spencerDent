@@ -22,5 +22,7 @@
     </form>
     <p><a href="?action=list_products">View Product List</a></p>
 
+    <?php include 'admin_login_status.php'; ?>
+
 </main>
 <?php include '../view/shared/footer.php'; ?>

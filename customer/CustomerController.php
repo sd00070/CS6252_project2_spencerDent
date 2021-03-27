@@ -58,7 +58,7 @@ class CustomerController
         $customer = $customer_table->verifyCustomer($email, $password);
 
         if ($customer == false) {
-            $message = 'Invalid email address or password';
+            $message = 'Invalid email or password.';
             include '../view/customer/customer_login.php';
         } else {
             $_SESSION['customer'] = $customer_table->getCustomerByEmail($email);

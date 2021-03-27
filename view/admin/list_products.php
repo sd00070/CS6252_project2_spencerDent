@@ -29,5 +29,7 @@
     </table>
     <p><a href="?action=show_add_form">Add Product</a></p>
 
+    <?php include 'admin_login_status.php'; ?>
+
 </main>
 <?php include '../view/shared/footer.php'; ?>
