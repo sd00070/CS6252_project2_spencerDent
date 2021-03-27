@@ -3,17 +3,34 @@ require_once '../model/Database.php';
 require_once '../model/ProductTable.php';
 require_once '../model/CustomerTable.php';
 require_once '../model/CountryTable.php';
+require_once '../model/Validator.php';
 require_once '../util/Util.php';
 
 class AdminController
 {
     private $action;
     private $db;
+    private $validator;
 
     public function __construct()
     {
-        $this->action = Util::getAction();
         $this->db = Database::connectToDatabase();
+        $this->action = Util::getAction();
+
+        $this->validator = new Validator();
+        $this->validator->addFields([
+            'first_name',
+            'last_name',
+            'address',
+            'city',
+            'state',
+            'email',
+            'password',
+            'postal_code',
+            'phone',
+            'email',
+            'password'
+        ]);
     }
 
     public function invoke()
@@ -93,7 +110,7 @@ class AdminController
     private function processCustomerSearch()
     {
         $last_name = '';
-        $customers = array();
+        $customers = [];
         include '../view/admin/customer_search.php';
     }
 
@@ -106,28 +123,69 @@ class AdminController
         $country_table = new CountryTable($this->db);
         $countries = $country_table->getCountryCodeAndNameAssociativeArray();
 
+        $fields = $this->validator->getFields();
+
         include '../view/admin/customer_display.php';
     }
 
     private function processUpdateCustomer()
     {
         $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
-        $first_name = filter_input(INPUT_POST, 'first_name');
-        $last_name = filter_input(INPUT_POST, 'last_name');
-        $address = filter_input(INPUT_POST, 'address');
-        $city = filter_input(INPUT_POST, 'city');
-        $state = filter_input(INPUT_POST, 'state');
-        $postal_code = filter_input(INPUT_POST, 'postal_code');
-        $country_code = filter_input(INPUT_POST, 'country_code');
-        $phone = filter_input(INPUT_POST, 'phone');
-        $email = filter_input(INPUT_POST, 'email');
-        $password = filter_input(INPUT_POST, 'password');
 
-        if (empty($last_name)) {
-            $error = 'You must enter a last name.';
-            include('../view/errors/error.php');
+        $first_name = filter_input(INPUT_POST, 'first_name');
+        $this->validator->checkText('first_name', $first_name, true, 1, 50);
+
+        $last_name = filter_input(INPUT_POST, 'last_name');
+        $this->validator->checkText('last_name', $last_name, true, 1, 50);
+
+        $address = filter_input(INPUT_POST, 'address');
+        $this->validator->checkText('address', $address, true, 1, 50);
+
+        $city = filter_input(INPUT_POST, 'city');
+        $this->validator->checkText('city', $city, true, 1, 50);
+
+        $state = filter_input(INPUT_POST, 'state');
+        $this->validator->checkText('state', $state, true, 1, 50);
+
+        $postal_code = filter_input(INPUT_POST, 'postal_code');
+        $this->validator->checkText('postal_code', $postal_code, true, 1, 20);
+
+        $country_code = filter_input(INPUT_POST, 'country_code');
+        // no validation required
+
+        $phone = filter_input(INPUT_POST, 'phone');
+        $this->validator->checkPhone('phone', $phone);
+
+        $email = filter_input(INPUT_POST, 'email');
+        $this->validator->checkEmail('email', $email);
+
+        $password = filter_input(INPUT_POST, 'password');
+        $this->validator->checkText('password', $password, true, 6, 20);
+
+        $fields = $this->validator->getFields();
+
+        $customer_table = new CustomerTable($this->db);
+        if ($this->validator->foundErrors()) {
+            $customer = [
+                'customerID' => $customer_id,
+                'firstName' => $first_name,
+                'lastName' => $last_name,
+                'address' => $address,
+                'city' => $city,
+                'state' => $state,
+                'postalCode' => $postal_code,
+                'countryCode' => $country_code,
+                'phone' => $phone,
+                'email' => $email,
+                'password' => $password
+            ];
+
+            $country_table = new CountryTable($this->db);
+            $countries = $country_table->getCountryCodeAndNameAssociativeArray();
+
+            include '../view/admin/customer_display.php';
+            return;
         } else {
-            $customer_table = new CustomerTable($this->db);
             $customer_table->updateCustomer(
                 $customer_id,
                 $first_name,
