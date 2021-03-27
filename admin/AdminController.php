@@ -57,12 +57,19 @@ class AdminController
         };
     }
 
+    private function isAuthorized()
+    {
+        return isset($_SESSION['admin_isValid']) &&
+            $_SESSION['admin_isValid'] &&
+            isset($_SESSION['admin_username']);
+    }
+
     /****************************************************************
      * Process Request
      ***************************************************************/
     private function showAdminLogin()
     {
-        if (isset($_SESSION['admin'])) {
+        if ($this->isAuthorized()) {
             $this->showAdminMenu();
             return;
         }
@@ -82,7 +89,10 @@ class AdminController
             $message = 'Invalid email or password.';
             include '../view/admin/admin_login.php';
         } else {
-            $_SESSION['admin'] = $admin;
+            $_SESSION['admin_isValid'] = true;
+            $_SESSION['admin_username'] = $username;
+
+            $admin_username = $username;
 
             include '../view/admin/admin_menu.php';
         }
@@ -90,40 +100,43 @@ class AdminController
 
     private function logoutAdmin()
     {
-        unset($_SESSION['admin']);
+        unset($_SESSION['admin_isValid']);
+        unset($_SESSION['admin_username']);
         $message = 'You have successfully logged out.';
         include '../view/admin/admin_login.php';
     }
 
     private function showAdminMenu()
     {
-        if (!isset($_SESSION['admin'])) {
+        if (!$this->isAuthorized()) {
+            $message = 'You must be logged in to perform this action.';
             include '../view/admin/admin_login.php';
             return;
         }
-        $admin = $_SESSION['admin'];
+        $admin_username = $_SESSION['admin_username'];
 
         include '../view/admin/admin_menu.php';
     }
-    
+
     private function showUnderConstruction()
     {
         include '../view/under_construction.php';
     }
-    
+
     private function displayProductList()
     {
-        if (!isset($_SESSION['admin'])) {
+        if (!$this->isAuthorized()) {
+            $message = 'You must be logged in to perform this action.';
             include '../view/admin/admin_login.php';
             return;
         }
-        $admin = $_SESSION['admin'];
-        
+        $admin_username = $_SESSION['admin_username'];
+
         $product_table = new ProductTable($this->db);
         $products = $product_table->getProducts();
         include '../view/admin/list_products.php';
     }
-    
+
     private function processDeleteProduct()
     {
         $product_code = filter_input(INPUT_POST, 'product_code');
@@ -131,66 +144,70 @@ class AdminController
         $product_table->deleteProduct($product_code);
         header("Location: .?action=list_products");
     }
-    
+
     private function showAddProductForm()
     {
-        if (!isset($_SESSION['admin'])) {
+        if (!$this->isAuthorized()) {
+            $message = 'You must be logged in to perform this action.';
             include '../view/admin/admin_login.php';
             return;
         }
-        $admin = $_SESSION['admin'];
+        $admin_username = $_SESSION['admin_username'];
 
         include '../view/admin/product_add.php';
     }
 
     private function processAddProduct()
     {
-        if (!isset($_SESSION['admin'])) {
+        if (!$this->isAuthorized()) {
+            $message = 'You must be logged in to perform this action.';
             include '../view/admin/admin_login.php';
             return;
         }
-        $admin = $_SESSION['admin'];
+        $admin_username = $_SESSION['admin_username'];
 
         $code = filter_input(INPUT_POST, 'code');
         $name = filter_input(INPUT_POST, 'name');
         $version = filter_input(INPUT_POST, 'version', FILTER_VALIDATE_FLOAT);
         $release_date = filter_input(INPUT_POST, 'release_date');
-        
+
         // Validate the inputs
         if (
             $code === NULL || $name === FALSE ||
             $version === NULL || $version === FALSE ||
             $release_date === NULL
-            ) {
-                $error = "Invalid product data. Check all fields and try again.";
-                include('../view/errors/error.php');
-            } else {
-                $product_table = new ProductTable($this->db);
-                $product_table->addProduct($code, $name, $version, $release_date);
+        ) {
+            $error = "Invalid product data. Check all fields and try again.";
+            include('../view/errors/error.php');
+        } else {
+            $product_table = new ProductTable($this->db);
+            $product_table->addProduct($code, $name, $version, $release_date);
             header("Location: .?action=list_products");
         }
     }
-    
+
     private function showCustomerSearch()
     {
-        if (!isset($_SESSION['admin'])) {
+        if (!$this->isAuthorized()) {
+            $message = 'You must be logged in to perform this action.';
             include '../view/admin/admin_login.php';
             return;
         }
-        $admin = $_SESSION['admin'];
-        
+        $admin_username = $_SESSION['admin_username'];
+
         $last_name = '';
         $customers = [];
         include '../view/admin/customer_search.php';
     }
-    
+
     private function displayCustomer()
     {
-        if (!isset($_SESSION['admin'])) {
+        if (!$this->isAuthorized()) {
+            $message = 'You must be logged in to perform this action.';
             include '../view/admin/admin_login.php';
             return;
         }
-        $admin = $_SESSION['admin'];
+        $admin_username = $_SESSION['admin_username'];
 
         $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
         $customer_table = new CustomerTable($this->db);
@@ -206,11 +223,12 @@ class AdminController
 
     private function processUpdateCustomer()
     {
-        if (!isset($_SESSION['admin'])) {
+        if (!$this->isAuthorized()) {
+            $message = 'You must be logged in to perform this action.';
             include '../view/admin/admin_login.php';
             return;
         }
-        $admin = $_SESSION['admin'];
+        $admin_username = $_SESSION['admin_username'];
 
         $customer_id = filter_input(INPUT_POST, 'customer_id', FILTER_VALIDATE_INT);
 
@@ -281,7 +299,7 @@ class AdminController
                 $email,
                 $password
             );
-            
+
             $customers = $customer_table->getCustomersByLastName($last_name);
             include '../view/admin/customer_search.php';
         }
@@ -289,11 +307,12 @@ class AdminController
 
     private function displayCustomerSearchResults()
     {
-        if (!isset($_SESSION['admin'])) {
+        if (!$this->isAuthorized()) {
+            $message = 'You must be logged in to perform this action.';
             include '../view/admin/admin_login.php';
             return;
         }
-        $admin = $_SESSION['admin'];
+        $admin_username = $_SESSION['admin_username'];
 
         $last_name = filter_input(INPUT_POST, 'last_name');
         if (empty($last_name)) {
